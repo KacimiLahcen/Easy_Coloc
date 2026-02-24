@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('colocations', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->enum('status', ['active', 'cancelled'])->default('active'); 
+            $table->foreignId('created_by')->constrained('users'); //owner
+            $table->string('invite_token')->unique()->nullable(); //for invites
             $table->timestamps();
         });
     }

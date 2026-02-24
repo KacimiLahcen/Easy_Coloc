@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expenses', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->decimal('amount', 10, 2); 
-            $table->date('date'); // for the month filter
-            $table->foreignId('payer_id')->constrained('users'); // we use 'users' cuz we don't have payers table(not logic)
             $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained();
+            $table->foreignId('sender_id')->constrained('users');
+            $table->foreignId('receiver_id')->constrained('users'); // the payer , so others should give him money back
+            $table->decimal('amount', 10, 2); 
+            $table->boolean('is_paid')->default(false); 
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expenses');
+        Schema::dropIfExists('payments');
     }
 };
