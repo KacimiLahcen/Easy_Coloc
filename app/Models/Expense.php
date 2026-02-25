@@ -10,6 +10,7 @@ class Expense extends Model
     public function payer()
     {
         return $this->belongsTo(User::class, 'payer_id');
+
     }
 
     public function colocation()
@@ -21,4 +22,18 @@ class Expense extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+
+
+    
+    protected $fillable = [
+        'title',
+          'amount',
+          'date',
+           'payer_id',
+        'colocation_id',
+        'category_id',
+             ];
+
 }
+
