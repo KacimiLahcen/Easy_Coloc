@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 namespace App\Models;
 use Illuminate\Http\Request;
 
@@ -11,10 +12,9 @@ class ExpenseController extends Controller
         $validated = $request->validate([
             'title' => 'required | string | max:200',
             'amount' => 'required | numeric',
-            'amount' => 'required|numeric|min:0.01',
-            'category_id' => 'required|exists:categories,id',
-            'colocation_id' => 'required|exists:colocations,id',
-            'date' => 'required|date',
+            'category_id' => 'required | exists:categories,id',
+            'colocation_id' => 'required | exists:colocations,id',
+            'date' => 'required | date',
         ]);
 
         $expense = Expense::create([
