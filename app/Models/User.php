@@ -20,6 +20,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', 
+        'reputation', 
+        'is_banned',
     ];
 
     /**
@@ -54,11 +57,17 @@ class User extends Authenticatable
     public function colocations()
     {
         return $this->belongsToMany(Colocation::class, 'memberships')
-            ->withPivot('role', 'joined_at', 'left_at');
+            ->withPivot('role', 'joined_at', 'left_at')
+            ->withTimestamps();
     }
 
     public function expensesPaid()
     {
         return $this->hasMany(Expense::class, 'payer_id');
+    }
+
+    public function paymentsSent()
+    {
+        return $this->hasMany(Payment::class, 'sender_id');
     }
 }

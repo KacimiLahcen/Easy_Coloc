@@ -8,15 +8,27 @@ class Colocation extends Model
 {
 
 
-    public function memberships()
-    {
-        return $this->hasMany(Membership::class);
-    }
+        protected $fillable = [
+            'name',
+            'status', 
+            'created_by', 
+            'invite_token'
+            ];
+
+
+
+
+
+    // public function memberships()
+    // {
+    //     return $this->hasMany(Membership::class);
+    // }
 
     public function members()
     {
         return $this->belongsToMany(User::class, 'memberships')
-            ->withPivot('role', 'joined_at', 'left_at');
+            ->withPivot('role', 'joined_at', 'left_at')
+            ->withTimestamps();
     }
 
     public function expenses()
