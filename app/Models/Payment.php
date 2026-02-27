@@ -12,6 +12,7 @@ class Payment extends Model
         'receiver_id', 
         'amount', 
         'is_paid',
+        'expense_id',
         ];
 
 

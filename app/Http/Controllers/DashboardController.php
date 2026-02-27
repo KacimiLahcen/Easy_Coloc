@@ -2,14 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Payment;
 use App\Models\Expense;
+use App\Models\Colocation;
+use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index() {
-        $user = auth()->user();
+        
+    // Get the currently authenticated user
+        
+        $user = Auth::user();
+        $categories = Category::all();
+
+
         //calculate total to pay where (is_paid = false)
         $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid',false)->sum('amount');
         
@@ -17,17 +27,41 @@ class DashboardController extends Controller
                                 ->where('is_paid', false)
                                 ->sum('amount');
 
+
+        $paymentsToCollect = Payment::with('sender')
+                                    ->where('receiver_id', $user->id)
+                                    ->where('is_paid', false)
+                                    ->get();
+
+
                                 //here we called the relationship in the user model to check if the left_it?
-        $activeColocation = $user->colocation()->whereNull('left_at')->first(); //first took first result cuz we said u can join only one activve coloc
+        $activeColocation = $user->colocations()->wherePivot('left_at', null)->with('members')->first(); //first took first result cuz we said u can join only one activve coloc
+
+
+        $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
+        $totalToCollect = Payment::where('receiver_id', $user->id)->where('is_paid', false)->sum('amount');
+
 
         $recentExpenses = [];
             if($activeColocation) {
                                         //Eager Loading usage
                 $recentExpenses = Expense::with (['payer', 'category'])
                                         ->where('colocation_id', $activeColocation->id)
-                                        ->latest()->take(5)->get();
+                                        ->latest()->take(10)->get();
             }
 
-            return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation'));
+
+        //only if user is admin
+            $admin_Stats = [];
+                if ($user->role === 'admin') {
+                    $admin_Stats = [
+                        'total_users' => User::count(),
+                        'total_colocations' => Colocation::count(),
+                        'banned_users' => User::where('is_banned', true)->count(),
+                    ];
+                }
+
+
+            return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation','categories','admin_Stats', 'paymentsToCollect'));
         }
 }

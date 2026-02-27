@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-namespace App\Models;
+use App\Models\Expense;
+use App\Models\Colocation;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
@@ -17,18 +19,24 @@ class ExpenseController extends Controller
             'date' => 'required | date',
         ]);
 
+        $user = auth()->user();
+
+        // $colocation = $user->colocations()->whereNull('left_at')->first();
+        $colocation = Colocation::findOrFail($validated['colocation_id']);
+
         $expense = Expense::create([
             'title' => $validated['title'],
             'amount' => $validated['amount'],
             'date' => $validated['date'],
             'category_id' => $validated['category_id'],
-            'colocation_id' => $validated['colocation_id'],
-            'payer_id' => auth()->id(),  // the expense creator = the payer
+            'colocation_id' => $colocation->id,
+            'payer_id' => $user->id,  // the expense creator = the payer
        
         ]);
 
         // we get the active memebers so we splite the amount between them
-        $colocation = Colocation::find($validated['colocation_id']);
+        // $colocation = Colocation::find($validated['colocation_id']);
+
         $activeMembers = $colocation->members()->whereNull('left_at')->get();
 
         $activeMembersCount = $activeMembers->count();
@@ -39,20 +47,21 @@ class ExpenseController extends Controller
         $amount_Per_Member = $validated['amount'] / $activeMembersCount;
 
         foreach($activeMembers as $member) {
-            if ($member->id !== auth()->id()) {
+            if ($member->id !== $user->id) {
                 Payment::create([
                     'colocation_id' => $colocation->id,
                     'sender_id' => $member->id,
-                    'receiver_id' => auth()->id(), //the person who made the colocation is automaticlly the payer of it
+                    'receiver_id' => $user->id, //the person who made the expense is automaticlly the payer of it
                     'amount' => $amount_Per_Member,
                     'is_paid' => false,
+                    'expense_id' => $expense->id,
                 ]);
             }
         }
 
         }
 
-            return response()->json(['message' => 'Expense added and split successfully!']);
+            return redirect()->route('dashboard')->with('success', 'Expense split successfully!');
 
     }
 }
