@@ -45,3 +45,6 @@ require __DIR__ . '/auth.php';
 
 
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+
+Route::post('/payments/{payment}/mark-as-paid', [ExpenseController::class, 'markAsPaid'])
+     ->name('payments.markAsPaid');
