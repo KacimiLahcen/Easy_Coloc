@@ -25,15 +25,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 divide-x divide-gray-100">
                     <div class="p-6 text-center">
                         <p class="text-[10px] text-gray-400 font-black uppercase">Total Users</p>
-                        <p class="text-3xl font-black text-indigo-600">{{ $adminStats['total_users'] ?? 0 }}</p>
+                        <p class="text-3xl font-black text-indigo-600">{{ $admin_Stats['total_users'] ?? 0 }}</p>
                     </div>
                     <div class="p-6 text-center">
                         <p class="text-[10px] text-gray-400 font-black uppercase">Active Houses</p>
-                        <p class="text-3xl font-black text-indigo-600">{{ $adminStats['total_colocations'] ?? 0 }}</p>
+                        <p class="text-3xl font-black text-indigo-600">{{ $admin_Stats['total_colocations'] ?? 0 }}</p>
                     </div>
                     <div class="p-6 text-center">
                         <p class="text-[10px] text-red-400 font-black uppercase">Banned</p>
-                        <p class="text-3xl font-black text-red-600">{{ $adminStats['banned_users'] ?? 0 }}</p>
+                        <p class="text-3xl font-black text-red-600">{{ $admin_Stats['banned_users'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
@@ -62,6 +62,7 @@
                             <span class="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Active Colocation</span>
                             <h2 class="text-5xl font-black text-indigo-950 tracking-tighter">{{ $activeColocation->name }}</h2>
                         </div>
+                        @if($user->role === 'admin')
                         <div class="bg-indigo-50 p-6 rounded-3xl border-2 border-white shadow-xl text-center min-w-[240px]">
                             <p class="text-[10px] text-gray-400 font-black mb-2 tracking-widest">INVITATION TOKEN</p>
                             <span class="text-2xl font-mono font-black text-indigo-600 px-5 py-2 rounded-xl block bg-white border border-indigo-100 select-all">
@@ -105,28 +106,69 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 space-y-8">
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100">
-                            <h3 class="font-black text-emerald-900 text-xs mb-4 uppercase tracking-widest">Confirm Received Payments</h3>
-                            <div class="space-y-3">
-                                @forelse($paymentsToCollect as $pay)
-                                    <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                                        <div class="flex items-center gap-3">
-                                            <div class="font-black text-emerald-700">{{ $pay->sender->name }}</div>
-                                            <div class="text-emerald-600 font-bold border-l border-emerald-200 pl-3">{{ number_format($pay->amount, 2) }} DH</div>
-                                        </div>
-                                        <form action="{{ route('payments.markAsPaid', $pay->id) }}" method="POST">
-                                            @csrf
-                                            <button class="bg-emerald-500 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-emerald-600 uppercase">Confirm Paid</button>
-                                        </form>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                    
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-red-100">
+                        <h3 class="font-black text-red-900 text-xs mb-4 uppercase tracking-widest flex items-center">
+                            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                            You Owe (Debt)
+                        </h3>
+                        <div class="space-y-3">
+                            @forelse($debtsIOwe as $debt)
+                                <div class="flex items-center justify-between p-4 {{ $debt->is_paid ? 'bg-gray-50 border-gray-100' : 'bg-red-50 border-red-100' }} rounded-2xl border">
+                                    <div>
+                                        <p class="text-sm font-black {{ $debt->is_paid ? 'text-gray-500' : 'text-red-900' }}">
+                                            Pay {{ $debt->receiver->name }}
+                                        </p>
+                                        <p class="text-xs {{ $debt->is_paid ? 'text-gray-400' : 'text-red-600' }} font-bold">
+                                            {{ number_format($debt->amount, 2) }} DH
+                                        </p>
                                     </div>
-                                @empty
-                                    <p class="text-gray-400 text-sm italic">No pending payments to collect.</p>
-                                @endforelse
-                            </div>
+                                    @if(!$debt->is_paid)
+                                        <form action="{{ route('payments.markAsPaid', $debt->id) }}" method="POST">
+                                            @csrf
+                                            <button class="bg-red-500 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-red-600 transition uppercase">
+                                                Mark Paid
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-gray-500 font-black text-xs uppercase">Paid</span>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-gray-400 text-sm italic">No debts to pay.</p>
+                            @endforelse
                         </div>
+                    </div>
 
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100">
+                        <h3 class="font-black text-emerald-900 text-xs mb-4 uppercase tracking-widest flex items-center">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>
+                            They Owe You (Collect)
+                        </h3>
+                        <div class="space-y-3">
+                            @forelse($debtsToMe as $debt)
+                                <div class="flex items-center justify-between p-4 {{ $debt->is_paid ? 'bg-gray-50 border-gray-100' : 'bg-emerald-50 border-emerald-100' }} rounded-2xl border">
+                                    <div>
+                                        <p class="text-sm font-black {{ $debt->is_paid ? 'text-gray-500' : 'text-emerald-900' }}">
+                                            {{ $debt->sender->name }} owes you
+                                        </p>
+                                        <p class="text-xs {{ $debt->is_paid ? 'text-gray-400' : 'text-emerald-600' }} font-bold">
+                                            {{ number_format($debt->amount, 2) }} DH
+                                        </p>
+                                    </div>
+                                    <span class="{{ $debt->is_paid ? 'text-gray-500' : 'text-emerald-500' }} font-black text-xs uppercase">
+                                        {{ $debt->is_paid ? 'Paid' : 'Pending' }}
+                                    </span>
+                                </div>
+                            @empty
+                                <p class="text-gray-400 text-sm italic">No debts to collect.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                    <div class="lg:col-span-2 space-y-8">
                         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                             <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/50">
                                 <h3 class="font-black text-gray-800 uppercase text-xs tracking-widest">Recent Expenses</h3>
@@ -150,7 +192,6 @@
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                         <h3 class="font-black text-gray-800 text-xs mb-6 uppercase tracking-widest border-b pb-4">Roommates</h3>
                         @php
-                            // Corrected check for current user's role in this colocation
                             $currentMember = $activeColocation->members->where('id', auth()->id())->first();
                             $isHouseAdmin = $currentMember && $currentMember->pivot->role === 'admin';
                         @endphp

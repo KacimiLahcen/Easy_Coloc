@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,3 +49,9 @@ Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.st
 
 Route::post('/payments/{payment}/mark-as-paid', [ExpenseController::class, 'markAsPaid'])
      ->name('payments.markAsPaid');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/payments/{payment}/mark-as-paid', [PaymentController::class, 'markAsPaid'])
+         ->name('payments.markAsPaid');
+});

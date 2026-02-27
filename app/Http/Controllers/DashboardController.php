@@ -62,6 +62,19 @@ class DashboardController extends Controller
                 }
 
 
-            return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation','categories','admin_Stats', 'paymentsToCollect'));
+                $debtsIOwe = Payment::with('receiver')
+                        ->where('sender_id', $user->id)
+                        // ->where('is_paid', false)
+                        ->get();
+
+
+
+                        $debtsToMe = Payment::with('sender')
+                        ->where('receiver_id', $user->id)
+                        // ->where('is_paid', false)
+                        ->get();
+
+
+            return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation','categories','admin_Stats', 'paymentsToCollect', 'debtsIOwe', 'debtsToMe'));
         }
 }
