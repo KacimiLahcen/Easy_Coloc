@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\Expense;
 use App\Models\Colocation;
 use App\Models\Category;
+use App\Models\Membership;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -18,6 +19,7 @@ class DashboardController extends Controller
         
         $user = Auth::user();
         $categories = Category::all();
+        // $membership = Membership::all();
 
 
         //calculate total to pay where (is_paid = false)

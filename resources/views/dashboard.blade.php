@@ -62,13 +62,13 @@
                             <span class="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Active Colocation</span>
                             <h2 class="text-5xl font-black text-indigo-950 tracking-tighter">{{ $activeColocation->name }}</h2>
                         </div>
-                        @if($user->role === 'admin')
+                        @if($activeColocation->pivot && $activeColocation->pivot->role === 'owner')
                         <div class="bg-indigo-50 p-6 rounded-3xl border-2 border-white shadow-xl text-center min-w-[240px]">
                             <p class="text-[10px] text-gray-400 font-black mb-2 tracking-widest">INVITATION TOKEN</p>
                             <span class="text-2xl font-mono font-black text-indigo-600 px-5 py-2 rounded-xl block bg-white border border-indigo-100 select-all">
                                 {{ $activeColocation->invite_token }}
                             </span>
-                        </div>
+                        </div> @endif
                     </div>
                 @endif
             </div>
