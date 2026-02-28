@@ -12,7 +12,7 @@ class CategoryController extends Controller
     public function store (Request $request) {
         $request->validate ([
             'name' => 'required | string ',
-            'colocation_id' => 'required | exists:colocation,id'
+            'colocation_id' => 'required | exists:colocations,id'
         ]);
 
         Category::create([
