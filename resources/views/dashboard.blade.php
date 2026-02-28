@@ -41,6 +41,7 @@
 
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
                 @if(!$activeColocation)
+                
                     <div class="max-w-2xl mx-auto text-center py-10">
                         <h3 class="text-2xl font-black text-gray-900 mb-2">Join a Colocation</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
