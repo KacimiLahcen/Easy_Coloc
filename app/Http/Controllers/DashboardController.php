@@ -18,7 +18,7 @@ class DashboardController extends Controller
     // Get the currently authenticated user
         
         $user = Auth::user();
-        $categories = Category::all();
+        // $categories = Category::where('colocation_id', $activeColocation->id)->get();
         // $membership = Membership::all();
 
 
@@ -39,6 +39,10 @@ class DashboardController extends Controller
                                 //here we called the relationship in the user model to check if the left_it?
         $activeColocation = $user->colocations()->wherePivot('left_at', null)->with('members')->first(); //first took first result cuz we said u can join only one activve coloc
 
+        $categories = collect();
+        if($activeColocation) {
+            $categories = Category::where('colocation_id', $activeColocation->id)->get();
+        };
 
         $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
         $totalToCollect = Payment::where('receiver_id', $user->id)->where('is_paid', false)->sum('amount');

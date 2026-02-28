@@ -75,6 +75,7 @@
 
 
                 <!-- add a category  -->
+                 @if($activeColocation)
                         <div class="bg-white p-6 rounded-3xl shadow-sm border-2 border-indigo-50 mt-4">
                 <h3 class="font-black text-gray-800 text-xs mb-4 uppercase tracking-widest">Create Private Category</h3>
                 
@@ -90,6 +91,7 @@
                     </button>
                 </form>
             </div>
+            @endif
 
 
             @if($activeColocation)

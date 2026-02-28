@@ -7,6 +7,8 @@ use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CategoryController;
+use App\Models\Category;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,16 +32,26 @@ Route::post('/colocations/join', [ColocationController::class, 'join'])->name('c
 Route::delete('/colocations/{colocation}/members/{user}', [ColocationController::class, 'kick'])
     ->name('colocations.members.kick');
 
-// Admin Specific Routes (Protected by role check)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::post('/admin/users/{user}/ban', [AdminController::class, 'toggleBan'])->name('admin.users.ban');
-});
+
 
 Route::middleware('auth')->group(function () {
+
+    // Admin Specific Routes (Protected by role check)
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::post('/admin/users/{user}/ban', [AdminController::class, 'toggleBan'])->name('admin.users.ban');
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    
+    Route::post('/payments/{payment}/mark-as-paid', [PaymentController::class, 'markAsPaid'])
+         ->name('payments.markAsPaid');
+
+
+    Route::post('/categories',[CategoryController::class, 'store'])->name('categories.store');
+
 });
 
 require __DIR__ . '/auth.php';
@@ -51,7 +63,5 @@ Route::post('/payments/{payment}/mark-as-paid', [ExpenseController::class, 'mark
      ->name('payments.markAsPaid');
 
 
-Route::middleware(['auth'])->group(function () {
-    Route::post('/payments/{payment}/mark-as-paid', [PaymentController::class, 'markAsPaid'])
-         ->name('payments.markAsPaid');
-});
+
+
