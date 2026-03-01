@@ -71,16 +71,15 @@ class ColocationController extends Controller
 
 
         $hasDebts = Payment::where('sender_id', $user->id)
-            ->where('is_paid', false)
-            ->whereHas('expense', function ($query) use ($colocation) {
+            ->where('is_paid', false)->whereHas('expense', function ($query) use ($colocation) {
                 $query->where('colocation_id', $colocation->id);
             })->exists();
 
-        
+
         if ($hasDebts) {
-            $user->decrement('reputation'); 
+            $user->decrement('reputation');
         } else {
-            $user->increment('reputation'); 
+            $user->increment('reputation');
         }
 
 
