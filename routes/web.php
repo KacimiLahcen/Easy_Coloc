@@ -63,3 +63,4 @@ require __DIR__ . '/auth.php';
 
 
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');

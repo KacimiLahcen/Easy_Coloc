@@ -31,7 +31,7 @@ class ExpenseController extends Controller
             'category_id' => $validated['category_id'],
             'colocation_id' => $colocation->id,
             'payer_id' => $user->id,  // the expense creator = the payer
-       
+
         ]);
 
         // we get the active memebers so we splite the amount between them
@@ -42,26 +42,37 @@ class ExpenseController extends Controller
         $activeMembersCount = $activeMembers->count();
 
         if ($activeMembersCount > 1) {
-            
-        // each individual's share
-        $amount_Per_Member = $validated['amount'] / $activeMembersCount;
 
-        foreach($activeMembers as $member) {
-            if ($member->id !== $user->id) {
-                Payment::create([
-                    'colocation_id' => $colocation->id,
-                    'sender_id' => $member->id,
-                    'receiver_id' => $user->id, //the person who made the expense is automaticlly the payer of it
-                    'amount' => $amount_Per_Member,
-                    'is_paid' => false,
-                    'expense_id' => $expense->id,
-                ]);
+            // each individual's share
+            $amount_Per_Member = $validated['amount'] / $activeMembersCount;
+
+            foreach ($activeMembers as $member) {
+                if ($member->id !== $user->id) {
+                    Payment::create([
+                        'colocation_id' => $colocation->id,
+                        'sender_id' => $member->id,
+                        'receiver_id' => $user->id, //the person who made the expense is automaticlly the payer of it
+                        'amount' => $amount_Per_Member,
+                        'is_paid' => false,
+                        'expense_id' => $expense->id,
+                    ]);
+                }
             }
         }
 
+        return redirect()->route('dashboard')->with('success', 'Expense split successfully!');
+    }
+
+    public function destroy(Expense $expense)
+    {
+        
+        if (auth()->id() !== $expense->created_by && auth()->id() !== $expense->colocation->created_by) {
+            return back()->with('error', 'Unauthorized action.');
         }
 
-            return redirect()->route('dashboard')->with('success', 'Expense split successfully!');
+        
+        $expense->delete();
 
+        return back()->with('success', 'Expense deleted successfully!');
     }
 }
