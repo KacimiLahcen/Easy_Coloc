@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users');
             $table->foreignId('receiver_id')->constrained('users'); // the payer , so others should give him money back
             $table->decimal('amount', 10, 2); 
-            $table->boolean('is_paid')->default(false); 
+            $table->boolean('is_paid')->default(false);
             $table->timestamps();
         });
     }

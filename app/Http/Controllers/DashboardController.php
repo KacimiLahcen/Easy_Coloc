@@ -40,8 +40,25 @@ class DashboardController extends Controller
         $activeColocation = $user->colocations()->wherePivot('left_at', null)->with('members')->first(); //first took first result cuz we said u can join only one activve coloc
 
         $categories = collect();
+        $debtsIOwe = collect();
+    $debtsToMe = collect();
         if($activeColocation) {
+
             $categories = Category::where('colocation_id', $activeColocation->id)->get();
+
+
+            $debtsIOwe = Payment::where('sender_id', $user->id)
+                            ->whereHas('expense', function($query) use ($activeColocation) {                
+                                $query->where('colocation_id', $activeColocation->id);
+                            })->get();
+        
+        $debtsToMe = Payment::where('receiver_id', $user->id)
+                            ->whereHas('expense', function($query) use ($activeColocation) {                
+                                $query->where('colocation_id', $activeColocation->id);
+                            })->get();
+
+
+
         };
 
         $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
@@ -68,17 +85,17 @@ class DashboardController extends Controller
                 }
 
 
-                $debtsIOwe = Payment::with('receiver')
-                        ->where('sender_id', $user->id)
+                // $debtsIOwe = Payment::with('receiver')
+                //         ->where('sender_id', $user->id)
                         // ->where('is_paid', false)
-                        ->get();
+                        // ->get();
 
 
 
-                        $debtsToMe = Payment::with('sender')
-                        ->where('receiver_id', $user->id)
+                        // $debtsToMe = Payment::with('sender')
+                        // ->where('receiver_id', $user->id)
                         // ->where('is_paid', false)
-                        ->get();
+                        // ->get();
 
 
             return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation','categories','admin_Stats', 'paymentsToCollect', 'debtsIOwe', 'debtsToMe'));

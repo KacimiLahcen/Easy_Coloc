@@ -45,23 +45,21 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    
+
     Route::post('/payments/{payment}/mark-as-paid', [PaymentController::class, 'markAsPaid'])
-         ->name('payments.markAsPaid');
+        ->name('payments.markAsPaid');
 
 
-    Route::post('/categories',[CategoryController::class, 'store'])->name('categories.store');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
 
+    // owner cancel it for all
+    Route::patch('/colocations/{colocation}/cancel', [ColocationController::class, 'cancel'])->name('colocations.cancel');
+
+    // member quits alone
+    Route::delete('/colocations/{colocation}/quit', [ColocationController::class, 'quit'])->name('colocations.quit');
 });
 
 require __DIR__ . '/auth.php';
 
 
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
-
-Route::post('/payments/{payment}/mark-as-paid', [ExpenseController::class, 'markAsPaid'])
-     ->name('payments.markAsPaid');
-
-
-
-

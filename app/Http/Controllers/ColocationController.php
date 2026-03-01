@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Colocation;
@@ -8,7 +9,8 @@ use Illuminate\Support\Str;
 class ColocationController extends Controller
 {
     // Create a new colocation
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate(['name' => 'required|string']);
 
         $colocation = Colocation::create([
@@ -25,7 +27,8 @@ class ColocationController extends Controller
 
 
     // Join a colocation using the invite token
-    public function join(Request $request) {
+    public function join(Request $request)
+    {
 
         $request->validate(['token' => 'required | string']);
 
@@ -38,12 +41,32 @@ class ColocationController extends Controller
 
         // Check if user is already in this colocation
         if ($colocation->members()->where('user_id', auth()->id())->exists()) {
-            
+
             return back()->with('error', 'you are already a member.');
         }
 
         $colocation->members()->attach(auth()->id(), ['role' => 'member']);
 
         return back()->with('success', 'Joined ' . $colocation->name);
+    }
+
+
+    public function cancel(Colocation $colocation)
+    {
+
+        $colocation->members()->updateExistingPivot(
+            $colocation->members()->pluck('user_id'),
+            ['left_at' => now()]
+        );
+        
+        $colocation->update(['status' => 'cancelled']);
+        return redirect()->route('dashboard')->with('success', 'Colocation cancelled.');
+    }
+
+    public function quit(Colocation $colocation)
+    {
+        
+        $colocation->members()->updateExistingPivot(auth()->id(), ['left_at' => now()]);
+        return redirect()->route('dashboard')->with('success', 'You left the colocation.');
     }
 }

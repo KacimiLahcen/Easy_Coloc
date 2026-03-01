@@ -7,25 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     protected $fillable = [
-        'colocation_id', 
-        'sender_id', 
-        'receiver_id', 
-        'amount', 
+        'colocation_id',
+        'sender_id',
+        'receiver_id',
+        'amount',
         'is_paid',
         'expense_id',
-        ];
+    ];
 
 
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
+    
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
+
     public function colocation()
     {
         return $this->belongsTo(Colocation::class);
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class);
     }
 }
