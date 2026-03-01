@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Colocation;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -85,5 +86,21 @@ class ColocationController extends Controller
 
         $colocation->members()->updateExistingPivot(auth()->id(), ['left_at' => now()]);
         return redirect()->route('dashboard')->with('success', 'You left the colocation.');
+    }
+
+    public function kick(Colocation $colocation, User $user)
+    {
+
+        if ($colocation->members()->where('user_id', auth()->id())->wherePivot('role', 'owner')->exists()) {
+
+
+            $colocation->members()->updateExistingPivot($user->id, [
+                'left_at' => now()
+            ]);
+
+            return back()->with('success', "Member {$user->name} has been kicked out.");
+        }
+
+        return back()->with('error', 'Unauthorized action.');
     }
 }

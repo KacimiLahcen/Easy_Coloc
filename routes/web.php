@@ -64,3 +64,6 @@ require __DIR__ . '/auth.php';
 
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
 Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+
+Route::delete('/colocations/{colocation}/members/{user}', [ColocationController::class, 'kick'])->name('colocations.members.kick');
