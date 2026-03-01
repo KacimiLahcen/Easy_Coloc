@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Colocation;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -58,14 +59,31 @@ class ColocationController extends Controller
             $colocation->members()->pluck('user_id'),
             ['left_at' => now()]
         );
-        
+
         $colocation->update(['status' => 'cancelled']);
         return redirect()->route('dashboard')->with('success', 'Colocation cancelled.');
     }
 
     public function quit(Colocation $colocation)
     {
+
+        $user = auth()->user();
+
+
+        $hasDebts = Payment::where('sender_id', $user->id)
+            ->where('is_paid', false)
+            ->whereHas('expense', function ($query) use ($colocation) {
+                $query->where('colocation_id', $colocation->id);
+            })->exists();
+
         
+        if ($hasDebts) {
+            $user->decrement('reputation'); 
+        } else {
+            $user->increment('reputation'); 
+        }
+
+
         $colocation->members()->updateExistingPivot(auth()->id(), ['left_at' => now()]);
         return redirect()->route('dashboard')->with('success', 'You left the colocation.');
     }

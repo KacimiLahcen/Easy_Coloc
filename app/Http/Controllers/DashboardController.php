@@ -13,91 +13,111 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index() {
-        
-    // Get the currently authenticated user
-        
+    public function index()
+    {
+
+        // Get the currently authenticated user
+
         $user = Auth::user();
         // $categories = Category::where('colocation_id', $activeColocation->id)->get();
         // $membership = Membership::all();
 
 
         //calculate total to pay where (is_paid = false)
-        $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid',false)->sum('amount');
-        
-        $totalToCollect = Payment::where('receiver_id', $user->id)
-                                ->where('is_paid', false)
-                                ->sum('amount');
 
 
-        $paymentsToCollect = Payment::with('sender')
-                                    ->where('receiver_id', $user->id)
-                                    ->where('is_paid', false)
-                                    ->get();
+
+$paymentsToCollect = Payment::with('sender')
+                ->where('receiver_id', $user->id)
+                ->where('is_paid', false)
+                ->get();
 
 
-                                //here we called the relationship in the user model to check if the left_it?
+        //here we called the relationship in the user model to check if the left_it?
         $activeColocation = $user->colocations()->wherePivot('left_at', null)->with('members')->first(); //first took first result cuz we said u can join only one activve coloc
 
         $categories = collect();
         $debtsIOwe = collect();
-    $debtsToMe = collect();
-        if($activeColocation) {
+        $debtsToMe = collect();
+
+
+        $totalToPay = 0;
+        $totalToCollect = 0;
+
+        if ($activeColocation) {
+
+
+
+            $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)
+                ->whereHas('expense', function ($query) use ($activeColocation) {
+                    $query->where('colocation_id', $activeColocation->id);
+                })
+                ->sum('amount');
+
+            $totalToCollect = Payment::where('receiver_id', $user->id)
+                ->where('is_paid', false)
+                ->whereHas('expense', function ($query) use ($activeColocation) {
+                    $query->where('colocation_id', $activeColocation->id);
+                })
+                ->sum('amount');
+
+
+
+            
+
+
 
             $categories = Category::where('colocation_id', $activeColocation->id)->get();
 
 
             $debtsIOwe = Payment::where('sender_id', $user->id)
-                            ->whereHas('expense', function($query) use ($activeColocation) {                
-                                $query->where('colocation_id', $activeColocation->id);
-                            })->get();
-        
-        $debtsToMe = Payment::where('receiver_id', $user->id)
-                            ->whereHas('expense', function($query) use ($activeColocation) {                
-                                $query->where('colocation_id', $activeColocation->id);
-                            })->get();
+                ->whereHas('expense', function ($query) use ($activeColocation) {
+                    $query->where('colocation_id', $activeColocation->id);
+                })->get();
 
-
-
+            $debtsToMe = Payment::where('receiver_id', $user->id)
+                ->whereHas('expense', function ($query) use ($activeColocation) {
+                    $query->where('colocation_id', $activeColocation->id);
+                })->get();
         };
 
-        $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
-        $totalToCollect = Payment::where('receiver_id', $user->id)->where('is_paid', false)->sum('amount');
+        // $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
+        // $totalToCollect = Payment::where('receiver_id', $user->id)->where('is_paid', false)->sum('amount');
 
 
         $recentExpenses = [];
-            if($activeColocation) {
-                                        //Eager Loading usage
-                $recentExpenses = Expense::with (['payer', 'category'])
-                                        ->where('colocation_id', $activeColocation->id)
-                                        ->latest()->take(10)->get();
-            }
+        if ($activeColocation) {
+            //Eager Loading usage
+            $recentExpenses = Expense::with(['payer', 'category'])
+                ->where('colocation_id', $activeColocation->id)
+                ->latest()->take(10)->get();
+        }
 
 
         //only if user is admin
-            $admin_Stats = [];
-                if ($user->role === 'admin') {
-                    $admin_Stats = [
-                        'total_users' => User::count(),
-                        'total_colocations' => Colocation::count(),
-                        'banned_users' => User::where('is_banned', true)->count(),
-                    ];
-                }
-
-
-                // $debtsIOwe = Payment::with('receiver')
-                //         ->where('sender_id', $user->id)
-                        // ->where('is_paid', false)
-                        // ->get();
-
-
-
-                        // $debtsToMe = Payment::with('sender')
-                        // ->where('receiver_id', $user->id)
-                        // ->where('is_paid', false)
-                        // ->get();
-
-
-            return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation','categories','admin_Stats', 'paymentsToCollect', 'debtsIOwe', 'debtsToMe'));
+        $admin_Stats = [];
+        if ($user->role === 'admin') {
+            $admin_Stats = [
+                'total_users' => User::count(),
+                'total_colocations' => Colocation::count(),
+                'banned_users' => User::where('is_banned', true)->count(),
+            ];
         }
+
+
+        // $debtsIOwe = Payment::with('receiver')
+        //         ->where('sender_id', $user->id)
+        // ->where('is_paid', false)
+        // ->get();
+
+
+
+        // $debtsToMe = Payment::with('sender')
+        // ->where('receiver_id', $user->id)
+        // ->where('is_paid', false)
+        // ->get();
+
+
+        return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation', 'categories', 'admin_Stats'/*, 'paymentsToCollect' */, 'debtsIOwe', 'debtsToMe'));
+    }
 }
