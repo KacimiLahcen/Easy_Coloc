@@ -67,3 +67,8 @@ Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->nam
 
 
 Route::delete('/colocations/{colocation}/members/{user}', [ColocationController::class, 'kick'])->name('colocations.members.kick');
+
+// routes/web.php
+// Route::post('/admin/users/{user}/toggle-ban', [App\Http\Controllers\AdminController::class, 'toggleBan'])
+//     ->name('admin.users.toggle-ban')
+//     ->middleware('auth');
