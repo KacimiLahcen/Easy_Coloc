@@ -12,7 +12,7 @@ class PaymentController extends Controller
     public function markAsPaid(Payment $payment)
     {
         if ($payment->sender_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+            abort(403, 'action failed!');
         }
 
         $payment->update([
