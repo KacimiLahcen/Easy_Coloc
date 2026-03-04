@@ -14,9 +14,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -37,8 +35,9 @@ Route::delete('/colocations/{colocation}/members/{user}', [ColocationController:
 Route::middleware('auth')->group(function () {
 
     // Admin Specific Routes (Protected by role check)
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::post('/admin/users/{user}/ban', [AdminController::class, 'toggleBan'])->name('admin.users.ban');
+    
+    // Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+    // Route::post('/admin/users/{user}/ban', [AdminController::class, 'toggleBan'])->name('admin.users.ban');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -68,7 +67,3 @@ Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->nam
 
 Route::delete('/colocations/{colocation}/members/{user}', [ColocationController::class, 'kick'])->name('colocations.members.kick');
 
-// routes/web.php
-// Route::post('/admin/users/{user}/toggle-ban', [App\Http\Controllers\AdminController::class, 'toggleBan'])
-//     ->name('admin.users.toggle-ban')
-//     ->middleware('auth');

@@ -81,9 +81,6 @@ $paymentsToCollect = Payment::with('sender')
                 })->get();
         };
 
-        // $totalToPay = Payment::where('sender_id', $user->id)->where('is_paid', false)->sum('amount');
-        // $totalToCollect = Payment::where('receiver_id', $user->id)->where('is_paid', false)->sum('amount');
-
 
         $recentExpenses = [];
         if ($activeColocation) {
@@ -103,19 +100,6 @@ $paymentsToCollect = Payment::with('sender')
                 'banned_users' => User::where('is_banned', true)->count(),
             ];
         }
-
-
-        // $debtsIOwe = Payment::with('receiver')
-        //         ->where('sender_id', $user->id)
-        // ->where('is_paid', false)
-        // ->get();
-
-
-
-        // $debtsToMe = Payment::with('sender')
-        // ->where('receiver_id', $user->id)
-        // ->where('is_paid', false)
-        // ->get();
 
 
         return view('dashboard', compact('user', 'totalToPay', 'totalToCollect', 'recentExpenses', 'activeColocation', 'categories', 'admin_Stats'/*, 'paymentsToCollect' */, 'debtsIOwe', 'debtsToMe'));

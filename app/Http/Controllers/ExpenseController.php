@@ -63,6 +63,10 @@ class ExpenseController extends Controller
         return redirect()->route('dashboard')->with('success', 'Expense split successfully!');
     }
 
+
+
+
+    
     public function destroy(Expense $expense)
     {
         

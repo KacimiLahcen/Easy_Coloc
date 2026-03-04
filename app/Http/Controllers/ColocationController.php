@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class ColocationController extends Controller
 {
+
+
     // Create a new colocation
     public function store(Request $request)
     {
@@ -17,7 +19,7 @@ class ColocationController extends Controller
 
         $colocation = Colocation::create([
             'name' => $request->name,
-            'invite_token' => Str::random(10), // gen unique 10char token
+            'invite_token' => Str::random(10),
             'created_by' => auth()->id(),
         ]);
 
@@ -26,6 +28,9 @@ class ColocationController extends Controller
 
         return back()->with('success', 'Colocation created successfully!');
     }
+
+
+
 
 
     // Join a colocation using the invite token
@@ -53,6 +58,9 @@ class ColocationController extends Controller
     }
 
 
+
+
+
     public function cancel(Colocation $colocation)
     {
 
@@ -64,6 +72,11 @@ class ColocationController extends Controller
         $colocation->update(['status' => 'cancelled']);
         return redirect()->route('dashboard')->with('success', 'Colocation cancelled.');
     }
+
+
+
+
+
 
     public function quit(Colocation $colocation)
     {
@@ -87,6 +100,10 @@ class ColocationController extends Controller
         $colocation->members()->updateExistingPivot(auth()->id(), ['left_at' => now()]);
         return redirect()->route('dashboard')->with('success', 'You left the colocation.');
     }
+
+
+
+
 
     public function kick(Colocation $colocation, User $user)
     {
